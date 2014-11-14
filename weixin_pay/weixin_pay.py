@@ -36,11 +36,18 @@ def pay():
 
     url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
 
-    #['appid', 'attach', 'body', 'mch_id', 'nonce_str', 'notify_url', 
+    #['appid', 'attach', 'body', 'mch_id', 'nonce_str', 'notify_url',
     #'out_trade_no', 'product_id', 'spbill_create_ip', 'time_expire', 'time_start', 'total_fee', 'trade_type']
+    post_text = ("<appid>%s</appid><auth_code>%s</auth_code><body><![CDATA[%s]]></body><device_info>%s</device_info><mch_id>%s</mch_id>"
+                 "<nonce_str><![CDATA[%s]]></nonce_str><out_trade_no><![CDATA[%s]]></out_trade_no><spbill_create_ip>%s</spbill_create_ip>"
+                 "<total_fee>%s</total_fee><sign><![CDATA[%s]]></sign>"
+                )%(params['appid'], params['auth_code'], params['body'], params['device_info'], params['mch_id'],
+                   params['nonce_str'], params['out_trade_no'], params['spbill_create_ip'], params['total_fee'],
+                   '729A68AC3DE268DBD9ADE442382E7B24',
+                )
 
-    #r = requests.post(url, data=post_text)
-    #print (r.text)
+    r = requests.post(url, data=post_text)
+    print (r.text)
     #print direct_pay_url
     #return direct_pay_url
 
@@ -83,7 +90,7 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
     elif s and encoding != 'utf-8':
         return s.decode('utf-8', errors).encode(encoding, errors)
     else:
-        return s    
+        return s
 
 if __name__ == "__main__":
     pay()
