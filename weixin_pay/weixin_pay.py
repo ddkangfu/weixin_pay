@@ -5,6 +5,37 @@ from api import random_str, build_mysign, params_to_string
 import requests
 import hashlib
 
+from utils import smart_str, random_str
+
+
+class WeixinPay:
+    def __init__(self, appid, mch_id, auth_key):
+        self.appid = appid
+        self.mch_id = mch_id
+        self.auth_key = auth_key
+        comm_params = {
+                       "appid": self.appid,
+                       "mch_id": self.mch_id,
+                      }
+
+    def post_unified_order(self, body, attach, out_trade_no, notify_url, product_id):
+        """发送预支付单"""
+        unified_order_params = {
+                                "nonce_str": random_str(32),
+                                "body": body,
+                                "attach": attach,
+                                "out_trade_no": out_trade_no,
+                                "total_fee": total_fee, #以分为单位，为一个字符串整数
+                                "spbill_create_ip": '127.0.0.1',
+                                "notify_url": notify_url,
+                                "trade_type": "NATIVE",
+                                "product_id": product_id,
+                                }
+        sign = calculate_md5_code(unified_order_params, self.auth_key)
+        
+
+
+
 def pay():
     params = {
               "appid": "wxd930ea5d5a258f4f",
@@ -66,31 +97,7 @@ def params_urlencode(params):
     return '&'.join(result)
 
 
-def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
-    """
-    Returns a bytestring version of 's', encoded as specified in 'encoding'.
 
-    If strings_only is True, don't convert (some) non-string-like objects.
-    """
-    if strings_only and isinstance(s, (types.NoneType, int)):
-        return s
-    if not isinstance(s, basestring):
-        try:
-            return str(s)
-        except UnicodeEncodeError:
-            if isinstance(s, Exception):
-                # An Exception subclass containing non-ASCII data that doesn't
-                # know how to print itself properly. We shouldn't raise a
-                # further exception.
-                return ' '.join([smart_str(arg, encoding, strings_only,
-                        errors) for arg in s])
-            return unicode(s).encode(encoding, errors)
-    elif isinstance(s, unicode):
-        return s.encode(encoding, errors)
-    elif s and encoding != 'utf-8':
-        return s.decode('utf-8', errors).encode(encoding, errors)
-    else:
-        return s
 
 if __name__ == "__main__":
     pay()
