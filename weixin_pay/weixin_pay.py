@@ -36,6 +36,9 @@ class WeiXinBasePay(object):
         print '*' * 5, response.text
         return response
 
+    def __xml_to__dict(self):
+        pass
+
 
 class UnifiedOrderPay(WeiXinBasePay):
     """发送预支付单"""
@@ -72,10 +75,16 @@ class UnifiedOrderPay(WeiXinBasePay):
     #    response = post_xml(url, xml)
     #    print '*' * 5, response.text
 
+class OrderQuery(WeiXinBasePay):
+    """订单状态查询"""
+    def __init__(self, appid, mch_id, auth_key):
+        super(OrderQuery, self).__init__(appid, mch_id, auth_key)
+        self.url = "https://api.mch.weixin.qq.com/pay/orderquery"
+
 
 if __name__ == "__main__":
     pay = UnifiedOrderPay(appid, mch_id, auth_key)
     #pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
-    pay.set_params(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416107999", total_fee="1",
+    pay.set_params(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416149262", total_fee="1",
             spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
     print pay.post_xml()
