@@ -49,9 +49,21 @@ def dict_to_xml(params, sign):
     xml.append('<sign><![CDATA[%s]]></sign></xml>' % sign)
     return ''.join(xml)
 
+
+def xml_to_dict(xml):
+    print xml[0:5], ",", xml[-6:]
+    if xml[0:5].upper() != "<XML>" and xml[-6].upper() != "</XML>":
+        return "", {}
+    content = xml[5:-6]
+    while (idx = content.index("</")) > 0:
+        print ""
+
+
+
 if __name__ == '__main__':
-    params = {"abc": 'abc123', "123": "123"}
-    print dict_to_xml(params)
+    #params = {"abc": 'abc123', "123": "123"}
+    #print dict_to_xml(params)
+    xml_to_dict("<xml><a>xxx</a></xml>")
 
 
 def random_str(randomlength=8):
@@ -62,6 +74,4 @@ def random_str(randomlength=8):
 
 def post_xml(url, xml):
     return requests.post(url, data=xml)
-
-
 

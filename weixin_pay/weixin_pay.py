@@ -36,8 +36,8 @@ class WeiXinBasePay(object):
         print '*' * 5, response.text
         return response
 
-    def __xml_to__dict(self):
-        pass
+    def _xml_to__dict(self):
+
 
 
 class UnifiedOrderPay(WeiXinBasePay):
