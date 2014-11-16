@@ -6,7 +6,7 @@ from utils import smart_str, dict_to_xml, calculate_sign, random_str, post_xml
 from local_settings import appid, mch_id, auth_key
 
 
-class WeiXinBasePay:
+class WeiXinBasePay(object):
     def __init__(self, appid, mch_id, auth_key):
         self.appid = appid #微信公众号身份的唯一标识。审核通过后，在微信发送的邮件中查看
         self.mch_id = mch_id #受理商ID，身份标识
@@ -20,16 +20,19 @@ class WeiXinBasePay:
         self.trade_type = ""
 
     def set_params(self, **kwags):
-        self.params.update(**kwags);
+        self.params = {}
+        for (k, v) in kwags.items():
+            self.params[k] = smart_str(v)
+
         self.params["nonce_str"] = random_str(32)
         self.params["trade_type"] = self.trade_type
         self.params.update(self.common_params)
 
     def post_xml(self):
-        sign = calculate_sign(params, self.auth_key)
-        xml = dict_to_xml(params, sign)
+        sign = calculate_sign(self.params, self.auth_key)
+        xml = dict_to_xml(self.params, sign)
         print xml
-        response = post_xml(url, xml)
+        response = post_xml(self.url, xml)
         print '*' * 5, response.text
         return response
 
@@ -71,5 +74,8 @@ class UnifiedOrderPay(WeiXinBasePay):
 
 
 if __name__ == "__main__":
-    pay = WeixinPay(appid, mch_id, auth_key)
-    pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
+    pay = UnifiedOrderPay(appid, mch_id, auth_key)
+    #pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
+    pay.set_params(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416107999", total_fee="1",
+            spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
+    print pay.post_xml()
