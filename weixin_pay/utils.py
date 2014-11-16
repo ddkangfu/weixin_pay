@@ -1,6 +1,8 @@
 # -*- coding=utf-8 -*-
 
 import hashlib
+from random import Random
+import requests
 
 def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
     """
@@ -30,25 +32,36 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
 
 
 def calculate_sign(params, auth_key):
-    #签名步骤一：按字典序排序参数
-    sorted(params)
-    #签名步骤二：在string后加入KEY
-    url = "&".join(['%s=%s'%(k, v) for (k, v) in params.items])
+    #签名步骤一：按字典序排序参数, 在string后加入KEY
+    url = "&".join(['%s=%s'%(key, smart_str(params[key])) for key in sorted(params)])
     url = '%s&key=%s' % (url, auth_key)
-    #签名步骤三：MD5加密, 所有字符转为大写
-    return hashlib.md5(url).upper()
+    #签名步骤二：MD5加密, 所有字符转为大写
+    return hashlib.md5(url).hexdigest().upper()
 
 
-def dict_to_xml(params):
+def dict_to_xml(params, sign):
     xml = ["<xml>",]
     for (k, v) in params.items():
         if (v.isdigit()):
             xml.append('<%s>%s</%s>' % (k, v, k))
         else:
-            xml.append('<%s><![DATA[%s]]></%s>' % (k, v, k))
-    xml.append('</xml>')
+            xml.append('<%s><![CDATA[%s]]></%s>' % (k, v, k))
+    xml.append('<sign><![CDATA[%s]]></sign></xml>' % sign)
     return ''.join(xml)
 
 if __name__ == '__main__':
     params = {"abc": 'abc123', "123": "123"}
     print dict_to_xml(params)
+
+
+def random_str(randomlength=8):
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    random = Random()
+    return "".join([chars[random.randint(0, randomlength - 1)] for i in range(randomlength)])
+
+
+def post_xml(url, xml):
+    return requests.post(url, data=xml)
+
+
+
