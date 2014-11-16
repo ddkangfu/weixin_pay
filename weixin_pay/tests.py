@@ -4,6 +4,7 @@ import unittest
 import hashlib
 
 from utils import dict_to_xml, calculate_sign, random_str, smart_str
+from local_settings import appid, mch_id, auth_key
 
 
 class TestUtils(unittest.TestCase):
@@ -44,6 +45,7 @@ class TestUtils(unittest.TestCase):
         expect_result = "<xml><a><![CDATA[abc]]></a><c>123</c><sign><![CDATA[%s]]></sign></xml>" % sign
         self.assertEqual(result, expect_result)
 
+
     def test_random_str(self):
         result = random_str()
         print result
@@ -52,7 +54,6 @@ class TestUtils(unittest.TestCase):
         result = random_str(32)
         print result
         self.assertEqual(len(result), 32)
-
 
 
 if __name__ == "__main__":
