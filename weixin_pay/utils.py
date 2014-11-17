@@ -31,10 +31,10 @@ def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
         return s
 
 
-def calculate_sign(params, auth_key):
+def calculate_sign(params, api_key):
     #签名步骤一：按字典序排序参数, 在string后加入KEY
     url = "&".join(['%s=%s'%(key, smart_str(params[key])) for key in sorted(params)])
-    url = '%s&key=%s' % (url, auth_key)
+    url = '%s&key=%s' % (url, api_key)
     #签名步骤二：MD5加密, 所有字符转为大写
     return hashlib.md5(url).hexdigest().upper()
 
@@ -55,15 +55,13 @@ def xml_to_dict(xml):
     if xml[0:5].upper() != "<XML>" and xml[-6].upper() != "</XML>":
         return "", {}
     content = xml[5:-6]
-    while (idx = content.index("</")) > 0:
-        print ""
-
-
-
-if __name__ == '__main__':
-    #params = {"abc": 'abc123', "123": "123"}
-    #print dict_to_xml(params)
-    xml_to_dict("<xml><a>xxx</a></xml>")
+    idx = content.find("</")
+    while idx >= 0:
+        text = content[0:idx]
+        key = text[text.find('<') + 1: ]
+        content = content[idx+2:]
+        idx = content.find("</")
+        print text, '-->', content, '====', key
 
 
 def random_str(randomlength=8):
@@ -75,3 +73,8 @@ def random_str(randomlength=8):
 def post_xml(url, xml):
     return requests.post(url, data=xml)
 
+
+if __name__ == '__main__':
+    #params = {"abc": 'abc123', "123": "123"}
+    #print dict_to_xml(params)
+    xml_to_dict("<xml><a>xxx</a></xml>")

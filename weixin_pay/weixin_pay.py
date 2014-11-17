@@ -3,14 +3,14 @@
 import hashlib
 
 from utils import smart_str, dict_to_xml, calculate_sign, random_str, post_xml
-from local_settings import appid, mch_id, auth_key
+from local_settings import appid, mch_id, api_key
 
 
 class WeiXinBasePay(object):
-    def __init__(self, appid, mch_id, auth_key):
+    def __init__(self, appid, mch_id, api_key):
         self.appid = appid #微信公众号身份的唯一标识。审核通过后，在微信发送的邮件中查看
         self.mch_id = mch_id #受理商ID，身份标识
-        self.auth_key = auth_key #商户支付密钥Key。审核通过后，在微信发送的邮件中查看
+        self.api_key = api_key #商户支付密钥Key。审核通过后，在微信发送的邮件中查看
         self.common_params = {
                               "appid": self.appid,
                               "mch_id": self.mch_id,
@@ -29,7 +29,7 @@ class WeiXinBasePay(object):
         self.params.update(self.common_params)
 
     def post_xml(self):
-        sign = calculate_sign(self.params, self.auth_key)
+        sign = calculate_sign(self.params, self.api_key)
         xml = dict_to_xml(self.params, sign)
         print xml
         response = post_xml(self.url, xml)
@@ -42,8 +42,8 @@ class WeiXinBasePay(object):
 
 class UnifiedOrderPay(WeiXinBasePay):
     """发送预支付单"""
-    def __init__(self, appid, mch_id, auth_key):
-        super(UnifiedOrderPay, self).__init__(appid, mch_id, auth_key)
+    def __init__(self, appid, mch_id, api_key):
+        super(UnifiedOrderPay, self).__init__(appid, mch_id, api_key)
         self.url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
         self.trade_type = "NATIVE"
 
@@ -69,7 +69,7 @@ class UnifiedOrderPay(WeiXinBasePay):
     #                            "trade_type": "NATIVE",
     #                            }
     #    unified_order_params.update(self.comm_params)
-    #    sign = calculate_sign(unified_order_params, self.auth_key)
+    #    sign = calculate_sign(unified_order_params, self.api_key)
     #    xml = dict_to_xml(unified_order_params, sign)
     #    print xml
     #    response = post_xml(url, xml)
@@ -77,13 +77,13 @@ class UnifiedOrderPay(WeiXinBasePay):
 
 class OrderQuery(WeiXinBasePay):
     """订单状态查询"""
-    def __init__(self, appid, mch_id, auth_key):
-        super(OrderQuery, self).__init__(appid, mch_id, auth_key)
+    def __init__(self, appid, mch_id, api_key):
+        super(OrderQuery, self).__init__(appid, mch_id, api_key)
         self.url = "https://api.mch.weixin.qq.com/pay/orderquery"
 
 
 if __name__ == "__main__":
-    pay = UnifiedOrderPay(appid, mch_id, auth_key)
+    pay = UnifiedOrderPay(appid, mch_id, api_key)
     #pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
     pay.set_params(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416149262", total_fee="1",
             spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
