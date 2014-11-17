@@ -3,8 +3,8 @@
 import unittest
 import hashlib
 
-from utils import dict_to_xml, calculate_sign, random_str, smart_str
-from local_settings import appid, mch_id, auth_key
+from utils import dict_to_xml, calculate_sign, random_str, smart_str, xml_to_dict
+from local_settings import appid, mch_id, api_key
 
 
 class TestUtils(unittest.TestCase):
@@ -54,6 +54,30 @@ class TestUtils(unittest.TestCase):
         result = random_str(32)
         print result
         self.assertEqual(len(result), 32)
+
+
+    def test_xml_to_dict(self):
+        xml = "<a>xxx</a>"
+        result = xml_to_dict(xml)
+        self.assertEqual(result, None)
+
+        xml = "<xml><a>xxx</a></xml>"
+        result = xml_to_dict(xml)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result["a"], "xxx")
+
+        xml = "<xml><a>xxx</a><b>yyy</b></xml>"
+        result = xml_to_dict(xml)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result["a"], "xxx")
+        self.assertEqual(result["b"], "yyy")
+
+        xml = "<xml><a>xxx</a><b>yyy</b><c><![CDATA[zzz]]></c></xml>"
+        result = xml_to_dict(xml)
+        self.assertEqual(len(result), 3)
+        self.assertEqual(result["a"], "xxx")
+        self.assertEqual(result["b"], "yyy")
+        self.assertEqual(result["c"], "zzz")
 
 
 if __name__ == "__main__":

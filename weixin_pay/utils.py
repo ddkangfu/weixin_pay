@@ -1,8 +1,10 @@
 # -*- coding=utf-8 -*-
 
 import hashlib
+import re
 from random import Random
 import requests
+
 
 def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
     """
@@ -51,17 +53,29 @@ def dict_to_xml(params, sign):
 
 
 def xml_to_dict(xml):
-    print xml[0:5], ",", xml[-6:]
     if xml[0:5].upper() != "<XML>" and xml[-6].upper() != "</XML>":
-        return "", {}
-    content = xml[5:-6]
-    idx = content.find("</")
-    while idx >= 0:
-        text = content[0:idx]
-        key = text[text.find('<') + 1: ]
-        content = content[idx+2:]
-        idx = content.find("</")
-        print text, '-->', content, '====', key
+        return None
+
+    result = {}
+    content = xml[5:-6].strip()
+    pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>") 
+    m = pattern.match(content)
+    while(m):
+        key = m.group("key").strip()
+        value = m.group("value").strip()
+        pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>");
+        inner_m = pattern_inner.match(value)
+        if inner_m:
+            value = inner_m.group("inner_val").strip()
+        result[key] = value
+
+        next_index = m.end("value") + len(key) + 3
+        if (next_index >= len(content)):
+            break;
+        content = content[next_index:]
+        m = pattern.match(content)
+
+    return result
 
 
 def random_str(randomlength=8):
@@ -72,9 +86,3 @@ def random_str(randomlength=8):
 
 def post_xml(url, xml):
     return requests.post(url, data=xml)
-
-
-if __name__ == '__main__':
-    #params = {"abc": 'abc123', "123": "123"}
-    #print dict_to_xml(params)
-    xml_to_dict("<xml><a>xxx</a></xml>")
