@@ -57,7 +57,8 @@ def xml_to_dict(xml):
         return None
 
     result = {}
-    content = xml[5:-6].strip()
+    content = ''.join(xml[5:-6].strip().split('\n'))
+
     pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>") 
     m = pattern.match(content)
     while(m):

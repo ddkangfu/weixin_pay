@@ -2,7 +2,7 @@
 
 import hashlib
 
-from utils import smart_str, dict_to_xml, calculate_sign, random_str, post_xml
+from utils import smart_str, dict_to_xml, calculate_sign, random_str, post_xml, xml_to_dict
 from local_settings import appid, mch_id, api_key
 
 
@@ -19,9 +19,9 @@ class WeiXinBasePay(object):
         self.url = ""
         self.trade_type = ""
 
-    def set_params(self, **kwags):
+    def set_params(self, **kwargs):
         self.params = {}
-        for (k, v) in kwags.items():
+        for (k, v) in kwargs.items():
             self.params[k] = smart_str(v)
 
         self.params["nonce_str"] = random_str(32)
@@ -34,8 +34,7 @@ class WeiXinBasePay(object):
         print xml
         response = post_xml(self.url, xml)
         print '*' * 5, response.text
-        return response
-
+        return xml_to_dict(response.text)
 
 
 class UnifiedOrderPay(WeiXinBasePay):
@@ -44,34 +43,18 @@ class UnifiedOrderPay(WeiXinBasePay):
         super(UnifiedOrderPay, self).__init__(appid, mch_id, api_key)
         self.url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
         self.trade_type = "NATIVE"
-
-    #def post_xml(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url):
-    #    self.params["body"] = smart_str(body)
-    #    self.params["out_trade_no"] = out_trade_no
-    #    self.params["total_fee"] = total_fee
-    #    self.params["spbill_create_ip"] = spbill_create_ip
-    #    self.params["notify_url"] = notify_url
-    #    return super(UnifiedOrderPay, self).post_xml()
         
+    def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url):
+        kwargs = {
+                  "body": body,
+                  "out_trade_no": out_trade_no,
+                  "total_fee": total_fee,
+                  "spbill_create_ip": spbill_create_ip,
+                  "notify_url": notify_url,
+                 } 
+        self.set_params(**kwargs)
+        return self.post_xml()
 
-    #def post_unified_order(self, body, out_trade_no, notify_url, total_fee):
-    #    """发送预支付单"""
-    #    url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
-    #    unified_order_params = {
-    #                            "nonce_str": random_str(32),
-    #                            "body": smart_str(body),
-    #                            "out_trade_no": out_trade_no,
-    #                            "total_fee": total_fee, #以分为单位，为一个字符串整数
-    #                            "spbill_create_ip": '127.0.0.1',
-    #                            "notify_url": notify_url,
-    #                            "trade_type": "NATIVE",
-    #                            }
-    #    unified_order_params.update(self.comm_params)
-    #    sign = calculate_sign(unified_order_params, self.api_key)
-    #    xml = dict_to_xml(unified_order_params, sign)
-    #    print xml
-    #    response = post_xml(url, xml)
-    #    print '*' * 5, response.text
 
 class OrderQuery(WeiXinBasePay):
     """订单状态查询"""
@@ -83,6 +66,6 @@ class OrderQuery(WeiXinBasePay):
 if __name__ == "__main__":
     pay = UnifiedOrderPay(appid, mch_id, api_key)
     #pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
-    pay.set_params(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416149262", total_fee="1",
+    print pay.post(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416149262", total_fee="1",
             spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
-    print pay.post_xml()
+    #print pay.post()

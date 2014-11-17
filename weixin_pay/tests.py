@@ -79,6 +79,23 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["b"], "yyy")
         self.assertEqual(result["c"], "zzz")
 
+        xml = """<xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wx12233445566778899]]></appid>
+<mch_id><![CDATA[12345678]]></mch_id>
+<nonce_str><![CDATA[Sv9ATOOBtYWvtUQs]]></nonce_str>
+<sign><![CDATA[0C638718BE0316E9B16E57DC869D2CD1]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20141117135919f494cdaadb0287308957]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?sr=GnZnlWr]]></code_url>
+</xml>"""
+        result = xml_to_dict(xml)
+        self.assertEqual(len(result), 10)
+        self.assertEqual(result["return_code"], "SUCCESS")
+        self.assertEqual(result["return_msg"], "OK")
+        self.assertEqual(result["result_code"], "SUCCESS")
+        self.assertEqual(result["code_url"], "weixin://wxpay/bizpayurl?sr=GnZnlWr")
 
 if __name__ == "__main__":
     unittest.main()
