@@ -54,9 +54,10 @@ def dict_to_xml(params, sign):
 
 def xml_to_dict(xml):
     if xml[0:5].upper() != "<XML>" and xml[-6].upper() != "</XML>":
-        return None
+        return None, None
 
     result = {}
+    sign = ""
     content = ''.join(xml[5:-6].strip().split('\n'))
 
     pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>") 
@@ -68,7 +69,10 @@ def xml_to_dict(xml):
         inner_m = pattern_inner.match(value)
         if inner_m:
             value = inner_m.group("inner_val").strip()
-        result[key] = value
+        if key == "sign":
+            sign = value
+        else:
+            result[key] = value
 
         next_index = m.end("value") + len(key) + 3
         if (next_index >= len(content)):
@@ -76,7 +80,22 @@ def xml_to_dict(xml):
         content = content[next_index:]
         m = pattern.match(content)
 
-    return result
+    return sign, result
+
+def validate_post_xml(xml):
+    sign, params = xml_to_dict(xml)
+    if (not sign) or (not result):
+        return None
+
+    remote_sign = calculate_sign(params, api_key)
+    if sign != remote_sign:
+        return None
+
+    if params["appid"] != appid or params["mch_id"] != mch_id:
+        return None
+
+    return params
+
 
 
 def random_str(randomlength=8):
