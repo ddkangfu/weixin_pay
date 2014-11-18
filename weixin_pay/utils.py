@@ -57,7 +57,7 @@ def xml_to_dict(xml):
         return None, None
 
     result = {}
-    sign = ""
+    sign = None
     content = ''.join(xml[5:-6].strip().split('\n'))
 
     pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>") 
@@ -65,14 +65,15 @@ def xml_to_dict(xml):
     while(m):
         key = m.group("key").strip()
         value = m.group("value").strip()
-        pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>");
-        inner_m = pattern_inner.match(value)
-        if inner_m:
-            value = inner_m.group("inner_val").strip()
-        if key == "sign":
-            sign = value
-        else:
-            result[key] = value
+        if value != "<![CDATA[CNY]]>":
+            pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>");
+            inner_m = pattern_inner.match(value)
+            if inner_m:
+                value = inner_m.group("inner_val").strip()
+            if key == "sign":
+                sign = value
+            else:
+                result[key] = value
 
         next_index = m.end("value") + len(key) + 3
         if (next_index >= len(content)):

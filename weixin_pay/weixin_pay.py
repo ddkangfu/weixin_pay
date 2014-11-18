@@ -66,7 +66,7 @@ class OrderQuery(WeiXinPay):
         self.url = "https://api.mch.weixin.qq.com/pay/orderquery"
 
     def post(self, out_trade_no):
-        self.set_params(out_trade_no)
+        self.set_params(out_trade_no=out_trade_no)
         return self.post_xml()
 
 

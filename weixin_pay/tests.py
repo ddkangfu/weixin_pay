@@ -58,22 +58,24 @@ class TestUtils(unittest.TestCase):
 
     def test_xml_to_dict(self):
         xml = "<a>xxx</a>"
-        result = xml_to_dict(xml)
+        sign, result = xml_to_dict(xml)
+        self.assertEqual(sign, None)
         self.assertEqual(result, None)
 
         xml = "<xml><a>xxx</a></xml>"
-        result = xml_to_dict(xml)
+        sign, result = xml_to_dict(xml)
+        self.assertEqual(sign, None)
         self.assertEqual(len(result), 1)
         self.assertEqual(result["a"], "xxx")
 
         xml = "<xml><a>xxx</a><b>yyy</b></xml>"
-        result = xml_to_dict(xml)
+        sign, result = xml_to_dict(xml)
         self.assertEqual(len(result), 2)
         self.assertEqual(result["a"], "xxx")
         self.assertEqual(result["b"], "yyy")
 
         xml = "<xml><a>xxx</a><b>yyy</b><c><![CDATA[zzz]]></c></xml>"
-        result = xml_to_dict(xml)
+        sign, result = xml_to_dict(xml)
         self.assertEqual(len(result), 3)
         self.assertEqual(result["a"], "xxx")
         self.assertEqual(result["b"], "yyy")
@@ -88,14 +90,17 @@ class TestUtils(unittest.TestCase):
 <result_code><![CDATA[SUCCESS]]></result_code>
 <prepay_id><![CDATA[wx20141117135919f494cdaadb0287308957]]></prepay_id>
 <trade_type><![CDATA[NATIVE]]></trade_type>
-<code_url><![CDATA[weixin://wxpay/bizpayurl?sr=GnZnlWr]]></code_url>
-</xml>"""
-        result = xml_to_dict(xml)
-        self.assertEqual(len(result), 10)
+<device_info><![CDATA[CNY]]></device_info>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?sr=GnZnlWr]]></code_url></xml>"""
+        sign, result = xml_to_dict(xml)
+        print result
+        self.assertEqual(sign, "0C638718BE0316E9B16E57DC869D2CD1")
+        self.assertEqual(len(result), 9)
         self.assertEqual(result["return_code"], "SUCCESS")
         self.assertEqual(result["return_msg"], "OK")
         self.assertEqual(result["result_code"], "SUCCESS")
         self.assertEqual(result["code_url"], "weixin://wxpay/bizpayurl?sr=GnZnlWr")
+        self.assertEqual(result.get("device_info", None), None)
 
 if __name__ == "__main__":
     unittest.main()
