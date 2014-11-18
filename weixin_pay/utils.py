@@ -76,16 +76,16 @@ def xml_to_dict(xml):
                 result[key] = value
 
         next_index = m.end("value") + len(key) + 3
-        if (next_index >= len(content)):
-            break;
+        if next_index >= len(content):
+            break
         content = content[next_index:]
         m = pattern.match(content)
 
     return sign, result
 
-def validate_post_xml(xml):
+def validate_post_xml(xml, appid, mch_id, api_key):
     sign, params = xml_to_dict(xml)
-    if (not sign) or (not result):
+    if (not sign) or (not params):
         return None
 
     remote_sign = calculate_sign(params, api_key)
