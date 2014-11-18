@@ -31,9 +31,7 @@ class WeiXinPay(object):
     def post_xml(self):
         sign = calculate_sign(self.params, self.api_key)
         xml = dict_to_xml(self.params, sign)
-        print xml
         response = post_xml(self.url, xml)
-        print '*' * 5, response.text
         return xml_to_dict(response.text)
 
     def valiate_xml(self, xml):
