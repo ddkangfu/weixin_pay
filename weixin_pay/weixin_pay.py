@@ -37,6 +37,23 @@ class WeiXinPay(object):
     def valiate_xml(self, xml):
         return validate_post_xml(xml)
 
+    def get_error_code_desc(self, error_code):
+        error_desc = {
+                      "SYSTEMERROR": u"接口后台错误",
+                      "INVALID_TRANSACTIONID": u"无效 transaction_id",
+                      "PARAM_ERROR": u"提交参数错误",
+                      "ORDERPAID": u"订单已支付",
+                      "OUT_TRADE_NO_USED": u"商户订单号重复",
+                      "NOAUTH": u"商户无权限",
+                      "NOTENOUGH": u"余额丌足",
+                      "NOTSUPORTCARD": u"不支持卡类型",
+                      "ORDERCLOSED": u"订单已关闭",
+                      "BANKERROR": u"银行系统异常",
+                      "REFUND_FEE_INVALID": u"退款金额大亍支付金额",
+                      "ORDERNOTEXIST": u"订单不存在",
+        }
+        return error_desc.get(error_code.strip().upper(), u"未知错误")
+
 
 class UnifiedOrderPay(WeiXinPay):
     """发送预支付单"""
