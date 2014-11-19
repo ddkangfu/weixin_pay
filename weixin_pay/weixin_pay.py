@@ -2,7 +2,8 @@
 
 import hashlib
 
-from utils import (smart_str, dict_to_xml, calculate_sign, random_str, post_xml, xml_to_dict, validate_post_xml)
+from utils import (smart_str, dict_to_xml, calculate_sign, random_str,
+    post_xml, xml_to_dict, validate_post_xml, format_url)
 #from local_settings import appid, mch_id, api_key
 
 
@@ -83,6 +84,33 @@ class OrderQuery(WeiXinPay):
     def post(self, out_trade_no):
         self.set_params(out_trade_no=out_trade_no)
         return self.post_xml()
+
+
+class JsAPIOrderPay(WeiXinPay):
+    def __init__(sefl, appid, mch_id, api_key):
+        super(JsAPIOrderPay, self).__init__(appid, mch_id, api_key)
+
+    def create_oauth_url_for_code(self, redirect_uri):
+        url_params = {
+                      "appid": self.appid,
+                      "redirect_uri": redirect_uri,
+                      "response_type": "code",
+                      "scope": "snsapi_base",
+                      "state": "STATE#wechat_redirect"
+                     }
+        url = format_url(url_params)
+        return "https://open.weixin.qq.com/connect/oauth2/authorize?%s" %url
+
+    def create_oauth_url_for_openid(self, code):
+        url_params = {
+                      "appid": self.appid,
+                      "secret": "",
+                      "code": code,
+                      "grant_type": "authorization_code",
+                      }
+        url = format_url(url_params)
+        return "https://api.weixin.qq.com/sns/oauth2/access_token?%s" % url
+
 
 
 #if __name__ == "__main__":
