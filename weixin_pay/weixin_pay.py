@@ -86,12 +86,13 @@ class OrderQuery(WeiXinPay):
         return self.post_xml()
 
 
-class JsAPIOrderPay(WeiXinPay):
+class JsAPIOrderPay(UnifiedOrderPay):
     def __init__(sefl, appid, mch_id, api_key, app_secret):
         super(JsAPIOrderPay, self).__init__(appid, mch_id, api_key)
         self.app_secret = app_secret
+        self.trade_type = "JSAPI"
 
-    def create_oauth_url_for_code(self, redirect_uri):
+    def _create_oauth_url_for_code(self, redirect_uri):
         url_params = {
                       "appid": self.appid,
                       "redirect_uri": redirect_uri,
@@ -112,10 +113,29 @@ class JsAPIOrderPay(WeiXinPay):
         url = format_url(url_params)
         return "https://api.weixin.qq.com/sns/oauth2/access_token?%s" % url
 
-    def get_openid(self, code):
+    def _get_openid(self, code):
         url = self._create_oauth_url_for_openid(code)
         #TODO:需要确定请求后返回的数据格式，再进一步解析得到openid
         return requests.get(url)
+
+    def _get_json_js_api_params(self, prepay_id):
+        js_params = {
+                     "appId": self.appid,
+                     "timeStamp": "%d" % time.time(),
+                     "nonceStr": random_str(32),
+                     "package": "prepay_id=%s" % prepay_id,
+                     "signType": "MD5",
+                    }
+        js_params["paySign"] = calculate_sign(js_params, self.api_key)
+        return json.dumps(js_params, ensure_ascii=False, encoding="utf-8")
+
+    def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url, code):
+        if code:
+            open_id = _get_openid(code)
+            _get_json_js_api_params(open_id)
+            return super(JsAPIOrderPay, self).post(body, out_trade_no, total_fee, spbill_create_ip, notify_url)
+        else:
+            return _create_oauth_url_for_code("")
 
 
 #if __name__ == "__main__":
