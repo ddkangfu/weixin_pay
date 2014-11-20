@@ -144,3 +144,7 @@ class JsAPIOrderPay(UnifiedOrderPay):
 #    print pay.post(body="贡献一分钱", out_trade_no="wx983e4a34aa76e3c41416149262", total_fee="1",
 #            spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
     #print pay.post()
+
+if __name__ == "__main__":
+    pay = JsAPIOrderPay(appid, mch_id, api_key)
+    print pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")

@@ -90,8 +90,9 @@ class TestUtils(unittest.TestCase):
 <result_code><![CDATA[SUCCESS]]></result_code>
 <prepay_id><![CDATA[wx20141117135919f494cdaadb0287308957]]></prepay_id>
 <trade_type><![CDATA[NATIVE]]></trade_type>
-<device_info><![CDATA[CNY]]></device_info>
+<device_info><![CDATA[]]></device_info>
 <code_url><![CDATA[weixin://wxpay/bizpayurl?sr=GnZnlWr]]></code_url></xml>"""
+        
         sign, result = xml_to_dict(xml)
         print result
         self.assertEqual(sign, "0C638718BE0316E9B16E57DC869D2CD1")
@@ -101,6 +102,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["result_code"], "SUCCESS")
         self.assertEqual(result["code_url"], "weixin://wxpay/bizpayurl?sr=GnZnlWr")
         self.assertEqual(result.get("device_info", None), None)
+        
 
 if __name__ == "__main__":
     unittest.main()

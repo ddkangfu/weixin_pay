@@ -42,7 +42,8 @@ def format_url(params, api_key=None):
 
 def calculate_sign(params, api_key):
     #签名步骤一：按字典序排序参数, 在string后加入KEY
-    url = format_url(params)
+    url = format_url(params, api_key)
+    print '*'*20,url
     #签名步骤二：MD5加密, 所有字符转为大写
     return hashlib.md5(url).hexdigest().upper()
 
@@ -71,7 +72,7 @@ def xml_to_dict(xml):
     while(m):
         key = m.group("key").strip()
         value = m.group("value").strip()
-        if value != "<![CDATA[CNY]]>":
+        if value != "<![CDATA[]]>":
             pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>");
             inner_m = pattern_inner.match(value)
             if inner_m:
@@ -89,6 +90,7 @@ def xml_to_dict(xml):
 
     return sign, result
 
+
 def validate_post_xml(xml, appid, mch_id, api_key):
     sign, params = xml_to_dict(xml)
     if (not sign) or (not params):
@@ -102,7 +104,6 @@ def validate_post_xml(xml, appid, mch_id, api_key):
         return None
 
     return params
-
 
 
 def random_str(randomlength=8):
