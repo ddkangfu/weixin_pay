@@ -87,23 +87,23 @@ class OrderQuery(WeiXinPay):
         return self.post_xml()[1]
 
 
-class JsAPIOrderPay(UnifiedOrderPay):
-    def __init__(sefl, appid, mch_id, api_key, app_secret):
+class JsAPIOrderPay(WeiXinPay):   
+    def __init__(self, appid, mch_id, api_key, app_secret):
         super(JsAPIOrderPay, self).__init__(appid, mch_id, api_key)
         self.app_secret = app_secret
         self.trade_type = "JSAPI"
 
-    def _create_oauth_url_for_code(self, redirect_uri):
+    def create_oauth_url_for_code(self, redirect_uri):
         url_params = {
                       "appid": self.appid,
-                      "redirect_uri": redirect_uri,
+                      "redirect_uri": redirect_uri, #一般是回调当前页面
                       "response_type": "code",
                       "scope": "snsapi_base",
                       "state": "STATE#wechat_redirect"
                      }
         url = format_url(url_params)
         return "https://open.weixin.qq.com/connect/oauth2/authorize?%s" %url
-
+"""
     def _create_oauth_url_for_openid(self, code):
         url_params = {
                       "appid": self.appid,
@@ -137,7 +137,7 @@ class JsAPIOrderPay(UnifiedOrderPay):
             return super(JsAPIOrderPay, self).post(body, out_trade_no, total_fee, spbill_create_ip, notify_url)
         else:
             return _create_oauth_url_for_code("")
-
+"""
 
 #if __name__ == "__main__":
 #    pay = UnifiedOrderPay(appid, mch_id, api_key)
@@ -146,6 +146,6 @@ class JsAPIOrderPay(UnifiedOrderPay):
 #            spbill_create_ip="127.0.0.1", notify_url="http://www.xxxxxx.com/demo/notify_url.php")
     #print pay.post()
 
-if __name__ == "__main__":
-    pay = JsAPIOrderPay(appid, mch_id, api_key)
-    print pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
+#if __name__ == "__main__":
+#    pay = JsAPIOrderPay(appid, mch_id, api_key)
+#    print pay.post_unified_order("贡献一分钱", "wx983e4a34aa76e3c41416107999", "http://www.xxxxxx.com/demo/notify_url.php", "1")
