@@ -43,7 +43,6 @@ def format_url(params, api_key=None):
 def calculate_sign(params, api_key):
     #签名步骤一：按字典序排序参数, 在string后加入KEY
     url = format_url(params, api_key)
-    print '*'*20,url
     #签名步骤二：MD5加密, 所有字符转为大写
     return hashlib.md5(url).hexdigest().upper()
 
@@ -67,13 +66,13 @@ def xml_to_dict(xml):
     sign = None
     content = ''.join(xml[5:-6].strip().split('\n'))
 
-    pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>") 
+    pattern = re.compile(r"<(?P<key>.+)>(?P<value>.+)</(?P=key)>")
     m = pattern.match(content)
     while(m):
         key = m.group("key").strip()
         value = m.group("value").strip()
         if value != "<![CDATA[]]>":
-            pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>");
+            pattern_inner = re.compile(r"<!\[CDATA\[(?P<inner_val>.+)\]\]>")
             inner_m = pattern_inner.match(value)
             if inner_m:
                 value = inner_m.group("inner_val").strip()

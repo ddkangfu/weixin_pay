@@ -26,7 +26,8 @@ class WeiXinPay(object):
             self.params[k] = smart_str(v)
 
         self.params["nonce_str"] = random_str(32)
-        self.params["trade_type"] = self.trade_type
+        if self.trade_type:
+            self.params["trade_type"] = self.trade_type
         self.params.update(self.common_params)
 
     def post_xml(self):
@@ -36,7 +37,7 @@ class WeiXinPay(object):
         return xml_to_dict(response.text)
 
     def valiate_xml(self, xml):
-        return validate_post_xml(xml)
+        return validate_post_xml(xml, self.appid, self.mch_id, self.api_key)
 
     def get_error_code_desc(self, error_code):
         error_desc = {
@@ -62,7 +63,7 @@ class UnifiedOrderPay(WeiXinPay):
         super(UnifiedOrderPay, self).__init__(appid, mch_id, api_key)
         self.url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
         self.trade_type = "NATIVE"
-        
+
     def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url):
         kwargs = {
                   "body": body,
@@ -70,9 +71,9 @@ class UnifiedOrderPay(WeiXinPay):
                   "total_fee": total_fee,
                   "spbill_create_ip": spbill_create_ip,
                   "notify_url": notify_url,
-                 } 
+                 }
         self.set_params(**kwargs)
-        return self.post_xml()
+        return self.post_xml()[1]
 
 
 class OrderQuery(WeiXinPay):
@@ -83,7 +84,7 @@ class OrderQuery(WeiXinPay):
 
     def post(self, out_trade_no):
         self.set_params(out_trade_no=out_trade_no)
-        return self.post_xml()
+        return self.post_xml()[1]
 
 
 class JsAPIOrderPay(UnifiedOrderPay):
