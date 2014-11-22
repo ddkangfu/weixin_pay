@@ -66,15 +66,16 @@ class UnifiedOrderPay(WeiXinPay):
         self.url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
         self.trade_type = "NATIVE"
 
-    def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url):
-        kwargs = {
-                  "body": body,
-                  "out_trade_no": out_trade_no,
-                  "total_fee": total_fee,
-                  "spbill_create_ip": spbill_create_ip,
-                  "notify_url": notify_url,
-                 }
-        self.set_params(**kwargs)
+    def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url, **kwargs):
+        tmp_kwargs = {
+                      "body": body,
+                      "out_trade_no": out_trade_no,
+                      "total_fee": total_fee,
+                      "spbill_create_ip": spbill_create_ip,
+                      "notify_url": notify_url,
+                     }
+        tmp_kwargs.update(**kwargs)
+        self.set_params(**tmp_kwargs)
         return self.post_xml()[1]
 
 
@@ -89,7 +90,7 @@ class OrderQuery(WeiXinPay):
         return self.post_xml()[1]
 
 
-class JsAPIOrderPay(WeiXinPay):   
+class JsAPIOrderPay(UnifiedOrderPay):   
     def __init__(self, appid, mch_id, api_key, app_secret):
         super(JsAPIOrderPay, self).__init__(appid, mch_id, api_key)
         self.app_secret = app_secret
@@ -141,15 +142,19 @@ class JsAPIOrderPay(WeiXinPay):
                     }
         js_params["paySign"] = calculate_sign(js_params, self.api_key)
         return json.dumps(js_params, ensure_ascii=False, encoding="utf-8")
-"""
+
     def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url, code):
         if code:
             open_id = _get_openid(code)
-            _get_json_js_api_params(open_id)
-            return super(JsAPIOrderPay, self).post(body, out_trade_no, total_fee, spbill_create_ip, notify_url)
-        else:
-            return _create_oauth_url_for_code("")
-"""
+            if open_id:
+                #直接调用基类的post方法查询prepay_id，如果成功，返回一个字典
+                unified_order = super(JsAPIOrderPay, self).post(body, out_trade_no, total_fee, spbill_create_ip, notify_url, open_id=open_id)
+                if unifiedorder:
+                    prepay_id = unifiedorder.get("prepay_id", None)
+                    if prepay_id:
+                        return _get_json_js_api_params(prepay_id)
+        return None
+
 
 #if __name__ == "__main__":
 #    pay = UnifiedOrderPay(appid, mch_id, api_key)
