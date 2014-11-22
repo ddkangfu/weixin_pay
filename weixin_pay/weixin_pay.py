@@ -103,7 +103,7 @@ class JsAPIOrderPay(WeiXinPay):
                      }
         url = format_url(url_params)
         return "https://open.weixin.qq.com/connect/oauth2/authorize?%s" %url
-"""
+
     def _create_oauth_url_for_openid(self, code):
         url_params = {
                       "appid": self.appid,
@@ -117,8 +117,9 @@ class JsAPIOrderPay(WeiXinPay):
     def _get_openid(self, code):
         url = self._create_oauth_url_for_openid(code)
         #TODO:需要确定请求后返回的数据格式，再进一步解析得到openid
-        return requests.get(url)
-
+        response = requests.get(url)
+        return response.json() if response else None
+"""
     def _get_json_js_api_params(self, prepay_id):
         js_params = {
                      "appId": self.appid,
