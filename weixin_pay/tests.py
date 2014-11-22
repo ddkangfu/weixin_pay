@@ -3,11 +3,27 @@
 import unittest
 import hashlib
 
-from utils import dict_to_xml, calculate_sign, random_str, smart_str, xml_to_dict
+from utils import dict_to_xml, calculate_sign, random_str, smart_str, xml_to_dict, format_url
 from local_settings import appid, mch_id, api_key
 
 
 class TestUtils(unittest.TestCase):
+    def test_format_url(self):
+        params = {"123": "123"}
+        key = "12345678901234567890"
+        url = format_url(params)
+        expect_url = "123=123"
+        self.assertEqual(url, expect_url)
+
+        params = {"abc": "abc", "123": "123"}
+        url = format_url(params)
+        expect_url = "123=123&abc=abc"
+        self.assertEqual(url, expect_url)
+
+        url = format_url(params, key)
+        expect_url = "123=123&abc=abc&key=12345678901234567890"
+        self.assertEqual(url, expect_url)
+
     def test_calculate_sign(self):
         params = {"123": "123"}
         key = "12345678901234567890"
@@ -20,7 +36,6 @@ class TestUtils(unittest.TestCase):
         expect_sign = hashlib.md5("123=123&abc=abc&key=%s" % key).hexdigest().upper()
         print sign
         self.assertEqual(sign, expect_sign)
-
 
     def test_dict_to_xml(self):
         params = {"123": "123"}
@@ -45,7 +60,6 @@ class TestUtils(unittest.TestCase):
         expect_result = "<xml><a><![CDATA[abc]]></a><c>123</c><sign><![CDATA[%s]]></sign></xml>" % sign
         self.assertEqual(result, expect_result)
 
-
     def test_random_str(self):
         result = random_str()
         print result
@@ -54,7 +68,6 @@ class TestUtils(unittest.TestCase):
         result = random_str(32)
         print result
         self.assertEqual(len(result), 32)
-
 
     def test_xml_to_dict(self):
         xml = "<a>xxx</a>"
