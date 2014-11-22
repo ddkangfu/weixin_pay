@@ -114,9 +114,12 @@ class JsAPIOrderPay(WeiXinPay):
         url = format_url(url_params)
         return "https://api.weixin.qq.com/sns/oauth2/access_token?%s" % url
 
-    def _get_openid(self, code):
+    def _get_oauth_info(self, code):
+        """
+        获取OAuth2的信息：access_token、expires_in、refresh_token、openid、scope
+        返回结果为字典，可使用["xxx"]或.get("xxx", None)的方式进行读取
+        """
         url = self._create_oauth_url_for_openid(code)
-        #TODO:需要确定请求后返回的数据格式，再进一步解析得到openid
         response = requests.get(url)
         return response.json() if response else None
 """
