@@ -6,6 +6,8 @@ from utils import (smart_str, dict_to_xml, calculate_sign, random_str,
     post_xml, xml_to_dict, validate_post_xml, format_url)
 #from local_settings import appid, mch_id, api_key
 
+OAUTH2_AUTHORIZE_URL = "https://open.weixin.qq.com/connect/oauth2/authorize?%s"
+OAUTH2_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?%s"
 
 class WeiXinPay(object):
     def __init__(self, appid, mch_id, api_key):
@@ -102,7 +104,7 @@ class JsAPIOrderPay(WeiXinPay):
                       "state": "STATE#wechat_redirect"
                      }
         url = format_url(url_params)
-        return "https://open.weixin.qq.com/connect/oauth2/authorize?%s" %url
+        return OAUTH2_AUTHORIZE_URL % url
 
     def _create_oauth_url_for_openid(self, code):
         url_params = {
@@ -112,7 +114,7 @@ class JsAPIOrderPay(WeiXinPay):
                       "grant_type": "authorization_code",
                       }
         url = format_url(url_params)
-        return "https://api.weixin.qq.com/sns/oauth2/access_token?%s" % url
+        return OAUTH2_ACCESS_TOKEN_URL % url
 
     def _get_oauth_info(self, code):
         """
@@ -122,7 +124,13 @@ class JsAPIOrderPay(WeiXinPay):
         url = self._create_oauth_url_for_openid(code)
         response = requests.get(url)
         return response.json() if response else None
-"""
+
+    def _get_openid(self, code):
+        oauth_info = self._create_oauth_url_for_openid(code)
+        if oauth_info:
+            return oauth_info.get("open_id", None)
+        return None
+
     def _get_json_js_api_params(self, prepay_id):
         js_params = {
                      "appId": self.appid,
@@ -133,7 +141,7 @@ class JsAPIOrderPay(WeiXinPay):
                     }
         js_params["paySign"] = calculate_sign(js_params, self.api_key)
         return json.dumps(js_params, ensure_ascii=False, encoding="utf-8")
-
+"""
     def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url, code):
         if code:
             open_id = _get_openid(code)
