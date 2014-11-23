@@ -90,7 +90,8 @@ class OrderQuery(WeiXinPay):
         return self.post_xml()[1]
 
 
-class JsAPIOrderPay(UnifiedOrderPay):   
+class JsAPIOrderPay(UnifiedOrderPay):
+    """H5页面的Js调用类"""
     def __init__(self, appid, mch_id, api_key, app_secret):
         super(JsAPIOrderPay, self).__init__(appid, mch_id, api_key)
         self.app_secret = app_secret
