@@ -1,13 +1,18 @@
 # -*- coding=utf-8 -*-
 
+import time
+import json
 import hashlib
+import requests
 
 from utils import (smart_str, dict_to_xml, calculate_sign, random_str,
     post_xml, xml_to_dict, validate_post_xml, format_url)
 #from local_settings import appid, mch_id, api_key
 
+
 OAUTH2_AUTHORIZE_URL = "https://open.weixin.qq.com/connect/oauth2/authorize?%s"
 OAUTH2_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?%s"
+
 
 class WeiXinPay(object):
     def __init__(self, appid, mch_id, api_key):
@@ -128,9 +133,9 @@ class JsAPIOrderPay(UnifiedOrderPay):
         return response.json() if response else None
 
     def _get_openid(self, code):
-        oauth_info = self._create_oauth_url_for_openid(code)
+        oauth_info = self._get_oauth_info(code)
         if oauth_info:
-            return oauth_info.get("open_id", None)
+            return oauth_info.get("openid", None)
         return None
 
     def _get_json_js_api_params(self, prepay_id):
@@ -142,18 +147,18 @@ class JsAPIOrderPay(UnifiedOrderPay):
                      "signType": "MD5",
                     }
         js_params["paySign"] = calculate_sign(js_params, self.api_key)
-        return json.dumps(js_params, ensure_ascii=False, encoding="utf-8")
+        return js_params
 
     def post(self, body, out_trade_no, total_fee, spbill_create_ip, notify_url, code):
         if code:
-            open_id = _get_openid(code)
+            open_id = self._get_openid(code)
             if open_id:
                 #直接调用基类的post方法查询prepay_id，如果成功，返回一个字典
                 unified_order = super(JsAPIOrderPay, self).post(body, out_trade_no, total_fee, spbill_create_ip, notify_url, open_id=open_id)
-                if unifiedorder:
-                    prepay_id = unifiedorder.get("prepay_id", None)
+                if unified_order:
+                    prepay_id = unified_order.get("prepay_id", None)
                     if prepay_id:
-                        return _get_json_js_api_params(prepay_id)
+                        return self._get_json_js_api_params(prepay_id)
         return None
 
 
