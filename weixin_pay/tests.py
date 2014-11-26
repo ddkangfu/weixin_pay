@@ -49,7 +49,6 @@ class TestUtils(unittest.TestCase):
         expect_result = "<xml><123><![CDATA[xyz123]]></123><sign><![CDATA[%s]]></sign></xml>" % sign
         self.assertEqual(result, expect_result)
 
-        #params = {"abc": "abc", "123": "123"}
         params = {"123": "123", "abc": "abc", }
         result = dict_to_xml(params, sign)
         expect_result = "<xml><123>123</123><abc><![CDATA[abc]]></abc><sign><![CDATA[%s]]></sign></xml>" % sign
@@ -62,12 +61,15 @@ class TestUtils(unittest.TestCase):
 
     def test_random_str(self):
         result = random_str()
-        print result
         self.assertEqual(len(result), 8)
 
-        result = random_str(32)
-        print result
-        self.assertEqual(len(result), 32)
+        result1 = random_str(32)
+        self.assertEqual(len(result1), 32)
+
+        result2 = random_str(32)
+        self.assertEqual(len(result2), 32)
+
+        self.assertNotEqual(result1, result2)
 
     def test_xml_to_dict(self):
         xml = "<a>xxx</a>"
@@ -107,7 +109,6 @@ class TestUtils(unittest.TestCase):
 <code_url><![CDATA[weixin://wxpay/bizpayurl?sr=GnZnlWr]]></code_url></xml>"""
         
         sign, result = xml_to_dict(xml)
-        print result
         self.assertEqual(sign, "0C638718BE0316E9B16E57DC869D2CD1")
         self.assertEqual(len(result), 9)
         self.assertEqual(result["return_code"], "SUCCESS")
