@@ -1,7 +1,7 @@
-weixin_pay
+微信支付接口(V3.3.7)类库
 ==========
 
-####微信支付接口(V3.3.7)类库
+####weixin_pay
 
 ##支持接口：
 此类库目前只提供了三种接口的操作类：
@@ -15,6 +15,8 @@ weixin_pay
 ####1. 统一支付接口
 
 用于获取预支付ID和查询支付链接地址，可以使用二维码类库将支付链接地址生成二维码后供付款人扫描付款。
+
+注意：同一个out_trade_no发送不同的数据内容(如金额、body发生变化，但是out_trade_no未变)时会报OUT_TRADE_NO_USED(商户订单号重复)错误。
 
 ```python
 from weixin_pay.weixin_pay import UnifiedOrderPay
@@ -56,6 +58,8 @@ if response and response["return_code"] == "SUCCESS" and response["result_code"]
 ####3. JSAPI 支付
 
 在微信浏览器里面打开 H5 网页中执行 JS 调起支付。接口输入输出数据格式为 JSON。
+
+注意：同一个out_trade_no发送不同的数据内容(如金额、body发生变化，但是out_trade_no未变)时会报OUT_TRADE_NO_USED(商户订单号重复)错误。
 
 ```python
 from weixin_pay.weixin_pay import JsAPIOrderPay, UnifiedOrderPay
