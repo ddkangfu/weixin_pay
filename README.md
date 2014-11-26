@@ -73,13 +73,49 @@ oauth_url = pay.create_oauth_url_for_code("http://www.xxxx.com/pay/url/")
 code = request.GET('code', None)
 
 if code:
+    #使用code获取H5页面JsAPI所需的所有参数，类型为字典
     josn_pay_info = pay.post("body", "out_trade_no", "total_fee", "127.0.0.1", "http://www.xxxx.com/pay/notify/url/", code)
-    #最后在H5页面中使用该josn信息调用JSAPI即可。
-``` 
+```
+
+例如在Django模板中可以这样调用：
+
+```javascript
+    function jsApiCall(){  
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest',
+            {
+                "appId":"{{ app_id }}",
+                "timeStamp": "{{ time_stamp }}",
+                "nonceStr": "{{ nonce_str }}",
+                "package": "{{ package }}",
+                "signType": "MD5",
+                "paySign": "{{ sign }}"
+            },
+            function(res){
+                WeixinJSBridge.log(res.err_msg);
+                //以下对调用结果进行处理
+            }
+        );
+    }
+
+    function callpay() {
+        if (typeof WeixinJSBridge == "undefined"){
+            if( document.addEventListener ) {
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+            } else if ( document.attachEvent ) {
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall); 
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+            }
+        } else {
+            jsApiCall();
+        }
+    }    
+    //其余部分参见官方的JsAPI调用示例
+```
 
 ##说明
 
-目前还是开发版本，未能提供一个稳定可用的版本，有能力的同学可以贡献代码，一起完善这个类库。
+目前还是开发版本，只是在公司网站上应用了一下，还不是一个完全稳定的版本，希望有能力的同学可以贡献代码，一起完善这个类库。
 
 如有问题请联系 ddkangfu(AT)gmail.com
 
