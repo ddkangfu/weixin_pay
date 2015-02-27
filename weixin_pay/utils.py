@@ -108,7 +108,7 @@ def validate_post_xml(xml, appid, mch_id, api_key):
 def random_str(randomlength=8):
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
     random = Random()
-    return "".join([chars[random.randint(0, randomlength - 1)] for i in range(randomlength)])
+    return "".join([chars[random.randint(0, len(chars) - 1)] for i in range(randomlength)])
 
 
 def post_xml(url, xml):
